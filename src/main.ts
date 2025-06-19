@@ -9,6 +9,14 @@ import { resolve } from 'path';
 import * as express from 'express';
 
 async function bootstrap() {
+  console.log('🔍 ENV VARIABLES:', {
+    NODE_ENV: process.env.NODE_ENV,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_NAME: process.env.DB_NAME,
+    UPLOAD_PATH: process.env.UPLOAD_PATH,
+  });
+
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
