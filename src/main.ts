@@ -22,7 +22,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: ['http://localhost:4200'],
+    origin: ['http://localhost:4200', 'https://org-food-inky.vercel.app'],
     credentials: true,
   });
 
