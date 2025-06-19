@@ -18,7 +18,7 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken } = await this.authService.login(dto);
+    const { accessToken, userId } = await this.authService.login(dto);
 
     const isProd = this.configService.get<string>('NODE_ENV') === 'production';
 
@@ -29,7 +29,7 @@ export class AuthController {
       maxAge: 60 * 60 * 1000,
     });
 
-    return { accessToken };
+    return { accessToken, userId };
   }
 
   @Post('logout')
