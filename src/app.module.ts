@@ -56,6 +56,12 @@ import * as Joi from 'joi';
         synchronize: config.get('NODE_ENV') !== 'production',
         logging: true,
         schema: 'public',
+        ssl: true,
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
       }),
     }),
     UserModule,
