@@ -13,6 +13,7 @@ import { Brand } from 'src/brand/entities/brand.entity';
 import { randomBytes } from 'crypto';
 import { Category } from 'src/category/entities/category.entity';
 import { Tag } from 'src/tag/entities/tag.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity()
 export class Product {
@@ -77,4 +78,7 @@ export class Product {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
   tags: Tag[];
+
+  @ManyToMany(() => User, (user) => user.favoriteProducts)
+  favoritedByUsers: User[];
 }

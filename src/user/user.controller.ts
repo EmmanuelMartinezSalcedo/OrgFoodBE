@@ -129,4 +129,44 @@ export class UserController {
   async deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.userService.deleteUser(id);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':userId/favorite/product/:productId')
+  @ApiOperation({ summary: 'Set product as favorite for a user' })
+  async setProductAsFavorite(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('productId', ParseUUIDPipe) productId: string,
+  ) {
+    return this.userService.setProductAsFavorite(userId, productId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':userId/favorite/product/:productId')
+  @ApiOperation({ summary: 'Unset product as favorite for a user' })
+  async unsetProductAsFavorite(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('productId', ParseUUIDPipe) productId: string,
+  ) {
+    return this.userService.unsetProductAsFavorite(userId, productId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':userId/favorite/bundle/:bundleId')
+  @ApiOperation({ summary: 'Set bundle as favorite for a user' })
+  async setBundleAsFavorite(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('bundleId', ParseUUIDPipe) bundleId: string,
+  ) {
+    return this.userService.setBundleAsFavorite(userId, bundleId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':userId/favorite/bundle/:bundleId')
+  @ApiOperation({ summary: 'Unset bundle as favorite for a user' })
+  async unsetBundleAsFavorite(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('bundleId', ParseUUIDPipe) bundleId: string,
+  ) {
+    return this.userService.unsetBundleAsFavorite(userId, bundleId);
+  }
 }

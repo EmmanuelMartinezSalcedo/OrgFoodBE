@@ -5,6 +5,7 @@ import {
   Min,
   IsOptional,
   Max,
+  IsUUID,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -25,4 +26,9 @@ export class CreateBundleDto {
   @Min(5)
   @Max(20)
   discount_percent: number;
+
+  @ApiProperty()
+  @IsUUID()
+  @IsOptional()
+  user_id?: string;
 }

@@ -11,12 +11,18 @@ import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import * as sharp from 'sharp';
 import { ConfigService } from '@nestjs/config';
+import { Product } from 'src/product/entities/product.entity';
+import { Bundle } from 'src/bundle/entities/bundle.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
+    @InjectRepository(Bundle)
+    private readonly bundleRepo: Repository<Bundle>,
     private readonly configService: ConfigService,
   ) {}
 
@@ -194,5 +200,79 @@ export class UserService {
 
     await this.userRepo.remove(user);
     return { message: 'User deleted successfully' };
+  }
+
+  async setProductAsFavorite(userId: string, productId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['favoriteProducts'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const product = await this.productRepo.findOne({
+      where: { id: productId },
+    });
+    if (!product) throw new NotFoundException('Product not found');
+
+    const alreadyFavorited = user.favoriteProducts.some(
+      (p) => p.id === productId,
+    );
+    if (!alreadyFavorited) {
+      user.favoriteProducts.push(product);
+      await this.userRepo.save(user);
+    }
+
+    return { message: 'Product marked as favorite' };
+  }
+
+  async unsetProductAsFavorite(userId: string, productId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['favoriteProducts'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    user.favoriteProducts = user.favoriteProducts.filter(
+      (p) => p.id !== productId,
+    );
+    await this.userRepo.save(user);
+
+    return { message: 'Product removed from favorites' };
+  }
+
+  async setBundleAsFavorite(userId: string, bundleId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['favoriteBundles'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const bundle = await this.bundleRepo.findOne({ where: { id: bundleId } });
+    if (!bundle) throw new NotFoundException('Bundle not found');
+
+    const alreadyFavorited = user.favoriteBundles.some(
+      (b) => b.id === bundleId,
+    );
+    if (!alreadyFavorited) {
+      user.favoriteBundles.push(bundle);
+      await this.userRepo.save(user);
+    }
+
+    return { message: 'Bundle marked as favorite' };
+  }
+
+  async unsetBundleAsFavorite(userId: string, bundleId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['favoriteBundles'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    user.favoriteBundles = user.favoriteBundles.filter(
+      (b) => b.id !== bundleId,
+    );
+    await this.userRepo.save(user);
+
+    return { message: 'Bundle removed from favorites' };
   }
 }

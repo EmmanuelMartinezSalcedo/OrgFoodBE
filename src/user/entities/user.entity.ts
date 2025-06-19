@@ -1,6 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { Address } from '../../address/entities/address.entity';
 import { PaymentMethod } from 'src/payment_method/entities/payment_method.entity';
+import { Bundle } from 'src/bundle/entities/bundle.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Entity()
 export class User {
@@ -41,4 +50,28 @@ export class User {
     cascade: true,
   })
   paymentMethods: PaymentMethod[];
+
+  @ManyToMany(() => Bundle, (bundle) => bundle.users)
+  @JoinTable({
+    name: 'user_bundle',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'bundle_id', referencedColumnName: 'id' },
+  })
+  bundles: Bundle[];
+
+  @ManyToMany(() => Product, (product) => product.favoritedByUsers)
+  @JoinTable({
+    name: 'favorite_product',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'product_id', referencedColumnName: 'id' },
+  })
+  favoriteProducts: Product[];
+
+  @ManyToMany(() => Bundle, (bundle) => bundle.favoritedByUsers)
+  @JoinTable({
+    name: 'favorite_bundle',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'bundle_id', referencedColumnName: 'id' },
+  })
+  favoriteBundles: Bundle[];
 }

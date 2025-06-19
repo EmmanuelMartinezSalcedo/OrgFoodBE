@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Bundle } from './entities/bundle.entity';
 import { Repository } from 'typeorm';
@@ -10,17 +14,42 @@ import * as fs from 'fs';
 import { UpdateBundleDto } from './dto/update-bundle.dto';
 import { plainToInstance } from 'class-transformer';
 import { ReadBundleDto } from './dto/read-bundle.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class BundleService {
   constructor(
     @InjectRepository(Bundle)
     private readonly bundleRepo: Repository<Bundle>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     private readonly configService: ConfigService,
   ) {}
   async create(dto: CreateBundleDto) {
+    const { user_id, ...bundleData } = dto;
+
+    let users: User[] = [];
+
+    if (user_id) {
+      const user = await this.userRepo.findOne({
+        where: { id: user_id },
+        relations: ['bundles'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${user_id} not found`);
+      }
+
+      if (user.bundles.length >= 3) {
+        throw new BadRequestException('User cannot create more than 3 bundles');
+      }
+
+      users = [user];
+    }
+
     const bundle = this.bundleRepo.create({
-      ...dto,
+      ...bundleData,
+      users,
       image_path: undefined,
     });
 
@@ -129,9 +158,12 @@ export class BundleService {
   }
 
   async getAllBundles() {
-    return this.bundleRepo.find({
-      order: { created_date: 'DESC' },
-    });
+    return this.bundleRepo
+      .createQueryBuilder('bundle')
+      .leftJoin('bundle.users', 'user')
+      .where('user.id IS NULL')
+      .orderBy('bundle.created_date', 'DESC')
+      .getMany();
   }
 
   async getLatestBundles() {

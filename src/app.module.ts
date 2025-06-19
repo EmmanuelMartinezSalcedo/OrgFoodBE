@@ -14,6 +14,9 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { CategoryModule } from './category/category.module';
 import { TagModule } from './tag/tag.module';
 import { ProductModule } from './product/product.module';
+import { RatingBundleModule } from './rating_bundle/rating_bundle.module';
+import { RatingProductModule } from './rating_product/rating_product.module';
+import { OrderModule } from './order/order.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -62,6 +65,9 @@ import * as Joi from 'joi';
     CategoryModule,
     TagModule,
     ProductModule,
+    RatingBundleModule,
+    RatingProductModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],

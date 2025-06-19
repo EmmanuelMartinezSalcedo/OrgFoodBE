@@ -1,6 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+} from 'typeorm';
 import { Subscription } from 'src/subscription/entities/subscription.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity()
 export class Bundle {
@@ -27,4 +34,10 @@ export class Bundle {
 
   @OneToMany(() => Product, (product) => product.bundle)
   products: Product[];
+
+  @ManyToMany(() => User, (user) => user.bundles)
+  users: User[];
+
+  @ManyToMany(() => User, (user) => user.favoriteBundles)
+  favoritedByUsers: User[];
 }
