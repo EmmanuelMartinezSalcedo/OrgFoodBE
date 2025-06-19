@@ -21,6 +21,11 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
+  app.enableCors({
+    origin: ['http://localhost:4200'],
+    credentials: true,
+  });
+
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') ?? 3000;
 
