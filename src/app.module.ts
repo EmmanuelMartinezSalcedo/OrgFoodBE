@@ -23,7 +23,10 @@ import * as Joi from 'joi';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : `.env.${process.env.NODE_ENV || 'development'}`,
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production').required(),
         DB_HOST: Joi.string().required(),
