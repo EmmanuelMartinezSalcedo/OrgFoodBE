@@ -106,6 +106,21 @@ CREATE TABLE public.address (
 );
 
 
+-- public.favorite_bundle definition
+
+-- Drop table
+
+-- DROP TABLE public.favorite_bundle;
+
+CREATE TABLE public.favorite_bundle (
+	user_id uuid NOT NULL,
+	bundle_id uuid NOT NULL,
+	CONSTRAINT pk_favorite_bundle PRIMARY KEY (user_id, bundle_id),
+	CONSTRAINT fk_favorite_bundle_bundle FOREIGN KEY (bundle_id) REFERENCES public.bundle(id) ON DELETE CASCADE,
+	CONSTRAINT fk_favorite_bundle_user FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE
+);
+
+
 -- public."order" definition
 
 -- Drop table
@@ -121,10 +136,11 @@ CREATE TABLE public."order" (
 	postal_code varchar NULL,
 	line_1 varchar NOT NULL,
 	line_2 varchar NULL,
-	"number" int4 NOT NULL,
-	delivery date NOT NULL,
+	created_at timestamp DEFAULT now() NOT NULL,
+	"number" varchar NOT NULL,
+	delivery timestamp NOT NULL,
 	CONSTRAINT order_pkey PRIMARY KEY (id),
-	CONSTRAINT order_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE
+	CONSTRAINT "FK_199e32a02ddc0f47cd93181d8fd" FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE
 );
 
 
@@ -198,8 +214,50 @@ CREATE TABLE public.product_tag (
 	product_id uuid NOT NULL,
 	tag_id uuid NOT NULL,
 	CONSTRAINT product_tag_pkey PRIMARY KEY (product_id, tag_id),
-	CONSTRAINT product_tag_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product(id) ON DELETE CASCADE,
-	CONSTRAINT product_tag_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES public.tag(id) ON DELETE CASCADE
+	CONSTRAINT "FK_7bf0b673c19b33c9456d54b2b37" FOREIGN KEY (tag_id) REFERENCES public.tag(id),
+	CONSTRAINT "FK_d08cb260c60a9bf0a5e0424768d" FOREIGN KEY (product_id) REFERENCES public.product(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE INDEX "IDX_7bf0b673c19b33c9456d54b2b3" ON public.product_tag USING btree (tag_id);
+CREATE INDEX "IDX_d08cb260c60a9bf0a5e0424768" ON public.product_tag USING btree (product_id);
+
+
+-- public.rating_bundle definition
+
+-- Drop table
+
+-- DROP TABLE public.rating_bundle;
+
+CREATE TABLE public.rating_bundle (
+	id uuid DEFAULT gen_random_uuid() NOT NULL,
+	user_id uuid NOT NULL,
+	bundle_id uuid NOT NULL,
+	created_at timestamp DEFAULT now() NOT NULL,
+	rating int4 NULL,
+	"comment" varchar NULL,
+	CONSTRAINT rating_bundle_pkey PRIMARY KEY (id),
+	CONSTRAINT unique_user_bundle_rating UNIQUE (user_id, bundle_id),
+	CONSTRAINT "FK_c45525dc778237a9dfc05915448" FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE,
+	CONSTRAINT "FK_d3009f792deb662df0c82108b30" FOREIGN KEY (bundle_id) REFERENCES public.bundle(id) ON DELETE CASCADE
+);
+
+
+-- public.rating_product definition
+
+-- Drop table
+
+-- DROP TABLE public.rating_product;
+
+CREATE TABLE public.rating_product (
+	id uuid DEFAULT gen_random_uuid() NOT NULL,
+	user_id uuid NOT NULL,
+	product_id uuid NOT NULL,
+	"comment" text NULL,
+	created_at timestamp DEFAULT now() NULL,
+	rating int4 NULL,
+	CONSTRAINT rating_product_pkey PRIMARY KEY (id),
+	CONSTRAINT rating_product_rating_check null,
+	CONSTRAINT fk_rating_product_product FOREIGN KEY (product_id) REFERENCES public.product(id) ON DELETE CASCADE,
+	CONSTRAINT fk_rating_product_user FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE
 );
 
 
@@ -247,28 +305,28 @@ CREATE TABLE public.user_bundle (
 	user_id uuid NOT NULL,
 	bundle_id uuid NOT NULL,
 	CONSTRAINT user_bundle_pkey PRIMARY KEY (user_id, bundle_id),
-	CONSTRAINT user_bundle_bundle_id_fkey FOREIGN KEY (bundle_id) REFERENCES public.bundle(id) ON DELETE CASCADE,
-	CONSTRAINT user_bundle_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE
+	CONSTRAINT "FK_3f2716b73c7c1069a7749cb5ab4" FOREIGN KEY (bundle_id) REFERENCES public.bundle(id),
+	CONSTRAINT "FK_ee7a9293c2e447c16c8d5f3bf44" FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+CREATE INDEX "IDX_3f2716b73c7c1069a7749cb5ab" ON public.user_bundle USING btree (bundle_id);
+CREATE INDEX "IDX_ee7a9293c2e447c16c8d5f3bf4" ON public.user_bundle USING btree (user_id);
 
 
--- public.favorite definition
+-- public.favorite_product definition
 
 -- Drop table
 
--- DROP TABLE public.favorite;
+-- DROP TABLE public.favorite_product;
 
-CREATE TABLE public.favorite (
-	id uuid DEFAULT gen_random_uuid() NOT NULL,
+CREATE TABLE public.favorite_product (
 	user_id uuid NOT NULL,
-	product_id uuid NULL,
-	bundle_id uuid NULL,
-	CONSTRAINT favorite_check CHECK ((((product_id IS NOT NULL) AND (bundle_id IS NULL)) OR ((product_id IS NULL) AND (bundle_id IS NOT NULL)))),
-	CONSTRAINT favorite_pkey PRIMARY KEY (id),
-	CONSTRAINT favorite_bundle_id_fkey FOREIGN KEY (bundle_id) REFERENCES public.bundle(id) ON DELETE CASCADE,
-	CONSTRAINT favorite_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.product(id) ON DELETE CASCADE,
-	CONSTRAINT favorite_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE
+	product_id uuid NOT NULL,
+	CONSTRAINT pk_favorite_product PRIMARY KEY (user_id, product_id),
+	CONSTRAINT "FK_a21c00544c6e01fa89c1f3496a4" FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT "FK_e8a2e36c5e33dc12de4169a6f8a" FOREIGN KEY (product_id) REFERENCES public.product(id)
 );
+CREATE INDEX "IDX_a21c00544c6e01fa89c1f3496a" ON public.favorite_product USING btree (user_id);
+CREATE INDEX "IDX_e8a2e36c5e33dc12de4169a6f8" ON public.favorite_product USING btree (product_id);
 
 
 -- public.order_row definition
